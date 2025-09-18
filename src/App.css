@@ -40,3 +40,50 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Pause overlay styles */
+.pause-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.pause-content {
+  background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+  padding: 3rem 4rem;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.pause-content h2 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.pause-content p {
+  margin: 0;
+  color: #5a6c7d;
+  font-size: 1.1rem;
+}
+
+.pause-content kbd {
+  background: linear-gradient(135deg, #ff6b6b, #feca57);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}

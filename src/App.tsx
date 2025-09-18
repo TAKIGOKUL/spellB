@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import './App.css'
 import './NeumorphicTheme.css' // Import the neumorphic theme
 import cn from 'classnames'
@@ -11,104 +11,6 @@ const ROUNDS_TOTAL = 5
 const WORDS_PER_ROUND = 5
 const POINTS_PER_WORD = 2
 
-function useTTSPlayer(word?: string) {
-  const [plays, setPlays] = useState(0)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!word) {
-      setError(null)
-      setPlays(0)
-      return
-    }
-    
-    console.log('TTS ready for word:', word)
-    setError(null)
-    setPlays(0)
-    setLoading(false)
-  }, [word])
-
-  const play = () => {
-    if (!word || plays >= MAX_REPLAYS) {
-      console.log('Cannot play:', { word, plays, maxReplays: MAX_REPLAYS })
-      return
-    }
-    
-    console.log('🔊 Attempting to speak word:', word)
-    setLoading(true)
-    
-    // Use simple Web Speech API with better error handling
-    if (!('speechSynthesis' in window)) {
-      console.error('TTS not supported')
-      setError('TTS not supported in this browser')
-      setLoading(false)
-      return
-    }
-    
-    try {
-      // Cancel any ongoing speech
-      speechSynthesis.cancel()
-      
-      // Create utterance
-      const utterance = new SpeechSynthesisUtterance(word)
-      
-      // Configure speech
-      utterance.rate = 0.7
-      utterance.pitch = 1.0
-      utterance.volume = 1.0
-      utterance.lang = 'en-US'
-      
-      // Get voices and select best English voice
-      const voices = speechSynthesis.getVoices()
-      const englishVoice = voices.find(v => v.lang.startsWith('en-US')) || 
-                          voices.find(v => v.lang.startsWith('en')) || 
-                          voices[0]
-      
-      if (englishVoice) {
-        utterance.voice = englishVoice
-        console.log('Using voice:', englishVoice.name)
-      }
-      
-      // Event handlers
-      utterance.onstart = () => {
-        console.log('✅ TTS started for:', word)
-        setLoading(true)
-      }
-      
-      utterance.onend = () => {
-        console.log('✅ TTS ended for:', word)
-        setPlays(p => p + 1)
-        setLoading(false)
-      }
-      
-      utterance.onerror = (e) => {
-        console.error('❌ TTS error:', e)
-        setLoading(false)
-        setError(`Speech error: ${e.error}`)
-      }
-      
-      // Speak the word
-      speechSynthesis.speak(utterance)
-      
-      // Fallback timeout
-      setTimeout(() => {
-        if (loading) {
-          console.log('⚠️ TTS timeout, stopping loading state')
-          setLoading(false)
-          setPlays(p => p + 1)
-        }
-      }, 4000)
-      
-    } catch (err) {
-      console.error('❌ TTS error:', err)
-      setLoading(false)
-      setError('Speech failed')
-    }
-  }
-
-  return { play, plays, loading, error }
-}
 
 function HexLetters({ value, length, complete }: { value: string; length: number; complete: boolean }) {
   const cells = Array.from({ length })
@@ -308,8 +210,68 @@ function useWords() {
   return { allWords, loading }
 }
 
+function AudioManager() {
+  // Word-Audio pairs data - Correctly mapped
+  // This data is available for programmatic access but not displayed in UI
+  const _wordAudioPairs = [
+    {"word": "achievement", "audioFile": "achievement.mp3.wav"},
+    {"word": "acquire", "audioFile": "acquire.mp3.wav"},
+    {"word": "amateur", "audioFile": "amateur.mp3.wav"},
+    {"word": "ancient", "audioFile": "ancient.mp3.wav"},
+    {"word": "apparatus", "audioFile": "apparatus.mp3.wav"},
+    {"word": "appreciate", "audioFile": "appreciate.mp3.wav"},
+    {"word": "argument", "audioFile": "argument.mp3.wav"},
+    {"word": "arithmetic", "audioFile": "arithmetic.mp3.wav"},
+    {"word": "arrangement", "audioFile": "arrangement.mp3.wav"},
+    {"word": "assassinate", "audioFile": "assassinate .mp3.wav"},
+    {"word": "athlete", "audioFile": "athlete (1).mp3.wav"},
+    {"word": "authority", "audioFile": "authority.mp3.wav"},
+    {"word": "auxiliary", "audioFile": "auxiliary.mp3.wav"},
+    {"word": "beautiful", "audioFile": "beautiful.mp3.wav"},
+    {"word": "benefit", "audioFile": "benefit.mp3.wav"},
+    {"word": "biography", "audioFile": "biography.mp3.wav"},
+    {"word": "boundary", "audioFile": "boundary.mp3.wav"},
+    {"word": "calendar", "audioFile": "calendar.mp3.wav"},
+    {"word": "campaign", "audioFile": "campaign.mp3.wav"},
+    {"word": "candidate", "audioFile": "candidate.mp3.wav"},
+    {"word": "category", "audioFile": "category.mp3.wav"},
+    {"word": "cemetery", "audioFile": "cemetery.mp3.wav"},
+    {"word": "ceremony", "audioFile": "ceremony.mp3.wav"},
+    {"word": "certificate", "audioFile": "certificate.mp3.wav"},
+    {"word": "characteristic", "audioFile": "characteristic.mp3.wav"},
+    {"word": "chocolate", "audioFile": "chocolate.mp3.wav"},
+    {"word": "circumstances", "audioFile": "circumstances.mp3.wav"},
+    {"word": "colleague", "audioFile": "colleague.mp3.wav"},
+    {"word": "column", "audioFile": "column.mp3.wav"},
+    {"word": "commission", "audioFile": "commission.mp3.wav"},
+    {"word": "committee", "audioFile": "committee.mp3.wav"},
+    {"word": "comparison", "audioFile": "comparison.mp3.wav"},
+    {"word": "competition", "audioFile": "competition.mp3.wav"},
+    {"word": "completely", "audioFile": "completely.mp3.wav"},
+    {"word": "compliment", "audioFile": "compliment.mp3.wav"},
+    {"word": "concentrate", "audioFile": "concentrate.mp3.wav"},
+    {"word": "conference", "audioFile": "conference.mp3.wav"},
+    {"word": "definitely", "audioFile": "definitely.mp3.wav"},
+    {"word": "emergency", "audioFile": "emergency.mp3.wav"},
+    {"word": "exaggerate", "audioFile": "exaggerate.mp3.wav"},
+    {"word": "excitement", "audioFile": "excitement.mp3.wav"},
+    {"word": "extraordinary", "audioFile": "extraordinary.mp3.wav"},
+    {"word": "fahrenheit", "audioFile": "fahrenheit.mp3.wav"},
+    {"word": "fortunate", "audioFile": "fortunate.mp3.wav"},
+    {"word": "hierarchy", "audioFile": "hierarchy.mp3"},
+    {"word": "pronunciation", "audioFile": "pronunciation.mp3.wav"}
+  ]
+
+  // Suppress unused variable warning by using it in a way that doesn't affect runtime
+  console.debug('AudioManager loaded with', _wordAudioPairs.length, 'word-audio pairs')
+
+  // Return null to hide from UI - component exists for programmatic access only
+  return null
+}
+
 function App() {
   const [started, setStarted] = useState(false)
+  const [paused, setPaused] = useState(false)
   const [round, setRound] = useState(1)
   const [score, setScore] = useState(0)
   const [input, setInput] = useState('')
@@ -325,7 +287,97 @@ function App() {
   }, [allWords])
 
   const word: WordItem | undefined = gameWords[index]
-  const { play, plays, loading } = useTTSPlayer(word?.word)
+  const [plays, setPlays] = useState(0)
+  const [loading, setLoading] = useState(false)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  // Find the corresponding audio file for the current word
+  const getAudioFile = (word: string) => {
+    const audioFiles = [
+      "achievement.mp3.wav", "acquire.mp3.wav", "amateur.mp3.wav", "ancient.mp3.wav",
+      "apparatus.mp3.wav", "appreciate.mp3.wav", "argument.mp3.wav", "arithmetic.mp3.wav",
+      "arrangement.mp3.wav", "assassinate .mp3.wav", "athlete (1).mp3.wav", "authority.mp3.wav",
+      "auxiliary.mp3.wav", "beautiful.mp3.wav", "benefit.mp3.wav", "biography.mp3.wav",
+      "boundary.mp3.wav", "calendar.mp3.wav", "campaign.mp3.wav", "candidate.mp3.wav",
+      "category.mp3.wav", "cemetery.mp3.wav", "ceremony.mp3.wav", "certificate.mp3.wav",
+      "characteristic.mp3.wav", "chocolate.mp3.wav", "circumstances.mp3.wav", "colleague.mp3.wav",
+      "column.mp3.wav", "commission.mp3.wav", "committee.mp3.wav", "comparison.mp3.wav",
+      "competition.mp3.wav", "completely.mp3.wav", "compliment.mp3.wav", "concentrate.mp3.wav",
+      "conference.mp3.wav", "definitely.mp3.wav", "emergency.mp3.wav", "exaggerate.mp3.wav",
+      "excitement.mp3.wav", "extraordinary.mp3.wav", "fahrenheit.mp3.wav", "fortunate.mp3.wav",
+      "hierarchy.mp3", "pronunciation.mp3.wav"
+    ]
+    
+    // Find audio file that matches the word
+    return audioFiles.find(file => {
+      const cleanFile = file.replace(/\.mp3\.wav$/, '').replace(/\.mp3$/, '').replace(/ \(1\)$/, '').replace(/ $/, '')
+      return cleanFile.toLowerCase() === word.toLowerCase()
+    }) || null
+  }
+
+  const playAudio = () => {
+    if (!word || plays >= MAX_REPLAYS) {
+      console.log('Cannot play: max replays reached')
+      return
+    }
+    
+    const audioFile = getAudioFile(word.word)
+    if (!audioFile) {
+      console.error('No audio file found for word:', word.word)
+      return
+    }
+    
+    setLoading(true)
+    
+    try {
+      // Create audio element if it doesn't exist
+      if (!audioRef.current) {
+        audioRef.current = new Audio(`/audio/${audioFile}`)
+      } else {
+        audioRef.current.src = `/audio/${audioFile}`
+      }
+      
+      // Configure audio
+      audioRef.current.volume = 1.0
+      
+      // Event handlers
+      audioRef.current.onplay = () => {
+        console.log('✅ Audio started playing')
+        setLoading(false)
+      }
+      
+      audioRef.current.onended = () => {
+        console.log('✅ Audio ended')
+        setPlays(p => p + 1)
+        setLoading(false)
+      }
+      
+      audioRef.current.onerror = (e: string | Event) => {
+        console.error('❌ Audio error:', e)
+        setLoading(false)
+        setPlays(p => p + 1) // Count as played even if error
+      }
+      
+      // Play the audio
+      audioRef.current.play().catch((err: Error) => {
+        console.error('❌ Audio play failed:', err)
+        setLoading(false)
+      })
+      
+      // Fallback timeout
+      setTimeout(() => {
+        if (loading) {
+          console.log('⚠️ Audio timeout, stopping loading state')
+          setLoading(false)
+          setPlays(p => p + 1)
+        }
+      }, 5000)
+      
+    } catch (err) {
+      console.error('❌ Audio error:', err)
+      setLoading(false)
+    }
+  }
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -355,8 +407,27 @@ function App() {
   const totalWords = ROUNDS_TOTAL * WORDS_PER_ROUND
   const gameComplete = index >= totalWords
 
+  // Keyboard event listener for pause functionality
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!started || gameComplete) return;
+      
+      if (e.code === 'Space' || e.key === ' ') {
+        e.preventDefault();
+        if (paused) {
+          setPaused(false);
+        } else {
+          setPaused(true);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, [started, paused, gameComplete]);
+
   if (!started) return <div className="app-container"><StartScreen onStart={() => setStarted(true)} /></div>
-  if (gameComplete) return <div className="app-container"><EndScreen score={score} onReplay={() => { setStarted(false); setRound(1); setScore(0); setInput(''); setIndex(0) }} /></div>
+  if (gameComplete) return <div className="app-container"><EndScreen score={score} onReplay={() => { setStarted(false); setPaused(false); setRound(1); setScore(0); setInput(''); setIndex(0) }} /></div>
   if (wordsLoading) return <div className="app-container"><div className="game-card">Loading words...</div></div>
 
   const length = word?.word.length ?? 0
@@ -364,11 +435,23 @@ function App() {
   return (
     <div className="app-container">
       <div className="game-card">
+        {paused && (
+          <div className="pause-overlay">
+            <div className="pause-content">
+              <h2>⏸️ Game Paused</h2>
+              <p>Press <kbd>SPACEBAR</kbd> to resume</p>
+            </div>
+          </div>
+        )}
+        
         <header className="app-header">
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
             <BeeImage size={60} />
             <h1>B the Bee</h1>
             <p>Listen carefully and spell the word</p>
+            <p style={{ fontSize: '0.8rem', opacity: 0.7, margin: 0 }}>
+              Press <kbd style={{ fontSize: '0.7rem', padding: '2px 4px', background: 'rgba(0,0,0,0.1)', borderRadius: '3px' }}>SPACEBAR</kbd> to pause
+            </p>
           </div>
         </header>
 
@@ -384,8 +467,8 @@ function App() {
         <div className="play-area">
           <button 
             className="main-play-button"
-            onClick={play} 
-            disabled={plays >= MAX_REPLAYS || loading}
+            onClick={playAudio} 
+            disabled={plays >= MAX_REPLAYS || loading || paused}
           >
             {loading ? '...' : '🔊'}
           </button>
@@ -402,9 +485,9 @@ function App() {
              value={input}
              maxLength={length > 0 ? length : undefined}
              onChange={(e) => setInput(e.target.value)}
-             disabled={correct !== null}
+             disabled={correct !== null || paused}
            />
-           <button className="submit-button" type="submit" disabled={correct !== null || !input.trim()}>
+           <button className="submit-button" type="submit" disabled={correct !== null || !input.trim() || paused}>
              Submit
            </button>
          </form>
@@ -418,6 +501,9 @@ function App() {
            </div>
          )}
       </div>
+      
+      {/* AudioManager component - hidden from UI but available programmatically */}
+      <AudioManager />
     </div>
   )
 }
