@@ -1,0 +1,164 @@
+/* NewTheme.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
+:root {
+  --honey-yellow: #FFB300;
+  --dark-brown: #4A2E00;
+  --bg-cream: #FFF8E1;
+  --card-bg: rgba(255, 255, 255, 0.6);
+  --border-light: rgba(255, 255, 255, 0.8);
+  --shadow-color: rgba(255, 179, 0, 0.15);
+  --font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background-color: var(--bg-cream);
+  font-family: var(--font-family);
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.game-card {
+  width: 100%;
+  max-width: 500px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-light);
+  border-radius: 24px;
+  box-shadow: 0 16px 32px var(--shadow-color);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.app-header {
+  text-align: center;
+}
+
+.app-header h1 {
+  margin: 0;
+  color: var(--dark-brown);
+  font-weight: 800;
+  font-size: 2.5rem;
+  letter-spacing: -1px;
+}
+
+.app-header p {
+  margin: 4px 0 0;
+  color: var(--dark-brown);
+  opacity: 0.7;
+}
+
+.stats-bar {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 600;
+  color: var(--dark-brown);
+}
+
+.stat-item {
+  background: rgba(255, 255, 255, 0.5);
+  padding: 8px 16px;
+  border-radius: 12px;
+}
+
+.hex-container {
+  min-height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.play-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.main-play-button {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(145deg, #FFC107, var(--honey-yellow));
+  box-shadow: 0 8px 20px rgba(255, 179, 0, 0.4);
+  color: white;
+  font-size: 3rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.main-play-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(255, 179, 0, 0.5);
+}
+.main-play-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 4px 12px rgba(255, 179, 0, 0.3);
+}
+.main-play-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: scale(1);
+}
+
+.plays-counter {
+  font-weight: 600;
+  color: var(--dark-brown);
+  opacity: 0.8;
+}
+
+.input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spell-input {
+  width: 100%;
+  padding: 16px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--dark-brown);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.spell-input::placeholder {
+  color: var(--dark-brown);
+  opacity: 0.4;
+}
+.spell-input:focus {
+  outline: none;
+  border-color: var(--honey-yellow);
+  background-color: white;
+}
+
+.submit-button {
+  padding: 16px;
+  border-radius: 12px;
+  border: none;
+  background: var(--dark-brown);
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.submit-button:hover {
+  background-color: #6a4a1a;
+}

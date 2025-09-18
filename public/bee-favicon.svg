@@ -1,0 +1,24 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Bee body -->
+  <circle cx="16" cy="16" r="12" fill="#FFD700" stroke="#8B4513" stroke-width="1"/>
+  
+  <!-- Bee stripes -->
+  <rect x="10" y="8" width="12" height="3" fill="#8B4513"/>
+  <rect x="10" y="13" width="12" height="3" fill="#8B4513"/>
+  <rect x="10" y="18" width="12" height="3" fill="#8B4513"/>
+  
+  <!-- Bee face -->
+  <circle cx="13" cy="12" r="1.5" fill="#8B4513"/>
+  <circle cx="19" cy="12" r="1.5" fill="#8B4513"/>
+  <path d="M 14 15 Q 16 17 18 15" stroke="#8B4513" stroke-width="1" fill="none"/>
+  
+  <!-- Antennae -->
+  <line x1="12" y1="6" x2="11" y2="4" stroke="#8B4513" stroke-width="1"/>
+  <line x1="20" y1="6" x2="21" y2="4" stroke="#8B4513" stroke-width="1"/>
+  <circle cx="11" cy="4" r="1" fill="#8B4513"/>
+  <circle cx="21" cy="4" r="1" fill="#8B4513"/>
+  
+  <!-- Wings -->
+  <ellipse cx="10" cy="14" rx="3" ry="2" fill="#FFF8DC" stroke="#8B4513" stroke-width="0.5" opacity="0.8"/>
+  <ellipse cx="22" cy="14" rx="3" ry="2" fill="#FFF8DC" stroke="#8B4513" stroke-width="0.5" opacity="0.8"/>
+</svg>

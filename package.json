@@ -1,5 +1,5 @@
 {
-  "name": "spellbee-pwa",
+  "name": "b-the-bee",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,13 +7,15 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "fetch:audio": "node scripts/fetch-audio.mjs"
   },
   "dependencies": {
     "classnames": "^2.5.1",
     "papaparse": "^5.5.3",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "speak-tts": "^2.0.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

@@ -1,0 +1,418 @@
+/* Neumorphic Theme with Honey/Bee Colors */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
+:root {
+  --honey-bg: #F5E6D3;
+  --honey-light: #FFF8E1;
+  --honey-dark: #D4A574;
+  --honey-accent: #FFB300;
+  --honey-text: #8B4513;
+  --shadow-light: #FFFFFF;
+  --shadow-dark: #E0C4A0;
+  --font-family: 'Poppins', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--honey-bg);
+  font-family: var(--font-family);
+  color: var(--honey-text);
+  min-height: 100vh;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Neumorphic Card */
+.game-card {
+  width: 100%;
+  max-width: 500px;
+  background: var(--honey-bg);
+  border-radius: 30px;
+  padding: 30px;
+  box-shadow: 
+    20px 20px 60px var(--shadow-dark),
+    -20px -20px 60px var(--shadow-light);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+/* Header */
+.app-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--honey-text);
+  text-shadow: 2px 2px 4px var(--shadow-dark);
+  letter-spacing: -1px;
+}
+
+.app-header p {
+  margin: 8px 0 0;
+  color: var(--honey-text);
+  opacity: 0.7;
+  font-weight: 500;
+}
+
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.stat-item {
+  flex: 1;
+  background: var(--honey-bg);
+  border-radius: 20px;
+  padding: 12px 18px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--honey-text);
+  box-shadow: 
+    inset 8px 8px 16px var(--shadow-dark),
+    inset -8px -8px 16px var(--shadow-light);
+}
+
+/* Hex Container */
+.hex-container {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--honey-bg);
+  border-radius: 25px;
+  box-shadow: 
+    inset 10px 10px 20px var(--shadow-dark),
+    inset -10px -10px 20px var(--shadow-light);
+  padding: 20px;
+}
+
+/* Hex Letters */
+.hex {
+  width: 50px;
+  height: 58px;
+  background: var(--honey-bg);
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 6px;
+  box-shadow: 
+    6px 6px 12px var(--shadow-dark),
+    -6px -6px 12px var(--shadow-light);
+  transition: all 0.2s ease;
+}
+
+.hex.glow {
+  box-shadow: 
+    6px 6px 12px var(--shadow-dark),
+    -6px -6px 12px var(--shadow-light),
+    0 0 20px var(--honey-accent);
+}
+
+.hex span {
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--honey-text);
+}
+
+/* Play Area */
+.play-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.main-play-button {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: none;
+  background: var(--honey-bg);
+  color: var(--honey-accent);
+  font-size: 3.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 
+    15px 15px 30px var(--shadow-dark),
+    -15px -15px 30px var(--shadow-light);
+}
+
+.main-play-button:hover {
+  box-shadow: 
+    20px 20px 40px var(--shadow-dark),
+    -20px -20px 40px var(--shadow-light);
+  transform: translateY(-2px);
+}
+
+.main-play-button:active {
+  box-shadow: 
+    inset 8px 8px 16px var(--shadow-dark),
+    inset -8px -8px 16px var(--shadow-light);
+  transform: translateY(0);
+}
+
+.main-play-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 
+    inset 8px 8px 16px var(--shadow-dark),
+    inset -8px -8px 16px var(--shadow-light);
+}
+
+.plays-counter {
+  background: var(--honey-bg);
+  border-radius: 15px;
+  padding: 8px 16px;
+  font-weight: 600;
+  color: var(--honey-text);
+  box-shadow: 
+    inset 5px 5px 10px var(--shadow-dark),
+    inset -5px -5px 10px var(--shadow-light);
+}
+
+/* Input Form */
+.input-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.spell-input {
+  width: 100%;
+  padding: 18px 20px;
+  border: none;
+  border-radius: 20px;
+  background: var(--honey-bg);
+  color: var(--honey-text);
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 
+    inset 8px 8px 16px var(--shadow-dark),
+    inset -8px -8px 16px var(--shadow-light);
+  transition: all 0.2s ease;
+}
+
+.spell-input::placeholder {
+  color: var(--honey-text);
+  opacity: 0.5;
+}
+
+.spell-input:focus {
+  outline: none;
+  box-shadow: 
+    inset 10px 10px 20px var(--shadow-dark),
+    inset -10px -10px 20px var(--shadow-light);
+}
+
+.spell-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submit-button {
+  padding: 18px;
+  border: none;
+  border-radius: 20px;
+  background: var(--honey-bg);
+  color: var(--honey-text);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 
+    8px 8px 16px var(--shadow-dark),
+    -8px -8px 16px var(--shadow-light);
+}
+
+.submit-button:hover:not(:disabled) {
+  box-shadow: 
+    12px 12px 24px var(--shadow-dark),
+    -12px -12px 24px var(--shadow-light);
+  transform: translateY(-2px);
+}
+
+.submit-button:active:not(:disabled) {
+  box-shadow: 
+    inset 6px 6px 12px var(--shadow-dark),
+    inset -6px -6px 12px var(--shadow-light);
+  transform: translateY(0);
+}
+
+.submit-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 
+    inset 6px 6px 12px var(--shadow-dark),
+    inset -6px -6px 12px var(--shadow-light);
+}
+
+/* Result Display */
+.result-display {
+  text-align: center;
+  padding: 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: 
+    inset 8px 8px 16px var(--shadow-dark),
+    inset -8px -8px 16px var(--shadow-light);
+}
+
+.result-correct {
+  background: var(--honey-bg);
+  color: #2E7D32;
+  border: 2px solid #4CAF50;
+}
+
+.result-incorrect {
+  background: var(--honey-bg);
+  color: #C62828;
+  border: 2px solid #F44336;
+}
+
+/* Start Screen */
+.start-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  padding: 30px;
+}
+
+.start-card {
+  background: var(--honey-bg);
+  border-radius: 30px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 
+    20px 20px 60px var(--shadow-dark),
+    -20px -20px 60px var(--shadow-light);
+}
+
+.start-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.btn {
+  padding: 15px 25px;
+  border: none;
+  border-radius: 20px;
+  background: var(--honey-bg);
+  color: var(--honey-text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 
+    8px 8px 16px var(--shadow-dark),
+    -8px -8px 16px var(--shadow-light);
+}
+
+.btn:hover:not(:disabled) {
+  box-shadow: 
+    12px 12px 24px var(--shadow-dark),
+    -12px -12px 24px var(--shadow-light);
+  transform: translateY(-2px);
+}
+
+.btn:active:not(:disabled) {
+  box-shadow: 
+    inset 6px 6px 12px var(--shadow-dark),
+    inset -6px -6px 12px var(--shadow-light);
+  transform: translateY(0);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 
+    inset 6px 6px 12px var(--shadow-dark),
+    inset -6px -6px 12px var(--shadow-light);
+}
+
+.btn.primary {
+  background: var(--honey-accent);
+  color: white;
+  box-shadow: 
+    8px 8px 16px var(--shadow-dark),
+    -8px -8px 16px var(--shadow-light);
+}
+
+.btn.primary:hover:not(:disabled) {
+  box-shadow: 
+    12px 12px 24px var(--shadow-dark),
+    -12px -12px 24px var(--shadow-light);
+}
+
+/* End Screen */
+.end-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
+}
+
+.end-card {
+  background: var(--honey-bg);
+  border-radius: 30px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 
+    20px 20px 60px var(--shadow-dark),
+    -20px -20px 60px var(--shadow-light);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .game-card {
+    margin: 10px;
+    padding: 20px;
+  }
+  
+  .app-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .main-play-button {
+    width: 80px;
+    height: 80px;
+    font-size: 2.8rem;
+  }
+  
+  .hex {
+    width: 40px;
+    height: 46px;
+    margin: 0 4px;
+  }
+  
+  .hex span {
+    font-size: 14px;
+  }
+}
