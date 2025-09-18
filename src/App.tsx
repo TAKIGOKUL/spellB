@@ -394,6 +394,14 @@ function App() {
       setInput('')
       setIndex((i) => i + 1)
       setCorrect(null)
+      resetPlays() // Reset audio plays for next word
+      
+      // Update round immediately based on new index
+      const newIndex = index + 1
+      const newRound = Math.floor(newIndex / WORDS_PER_ROUND) + 1
+      if (newRound <= ROUNDS_TOTAL) {
+        setRound(newRound)
+      }
     }, 1500) // Show result for 1.5 seconds
   }
 
