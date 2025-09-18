@@ -458,9 +458,6 @@ function App() {
             <BeeImage size={60} />
             <h1>B the Bee</h1>
             <p>Listen carefully and spell the word</p>
-            <p style={{ fontSize: '0.8rem', opacity: 0.7, margin: 0 }}>
-              Press <kbd style={{ fontSize: '0.7rem', padding: '2px 4px', background: 'rgba(0,0,0,0.1)', borderRadius: '3px' }}>SPACEBAR</kbd> to pause
-            </p>
           </div>
         </header>
 

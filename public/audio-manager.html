@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Manager - Word-Audio Pairs</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .table-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            vertical-align: middle;
+        }
+        
+        tr:hover {
+            background-color: #f8f9ff;
+        }
+        
+        .word-cell {
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .audio-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .audio-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        audio {
+            width: 200px;
+            height: 40px;
+            border-radius: 20px;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .change-btn {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef);
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .change-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+        }
+        
+        .status {
+            font-size: 0.8rem;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .loading {
+            color: #ff6b6b;
+        }
+        
+        .playing {
+            color: #4ecdc4;
+        }
+        
+        .error {
+            color: #ff4757;
+        }
+        
+        .stats {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .stats h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        
+        .stats p {
+            margin: 5px 0;
+            color: #666;
+        }
+        
+        .controls-section {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .controls-section h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+        
+        .control-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .add-btn {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+        
+        .restore-btn {
+            background: linear-gradient(135deg, #feca57, #ff9ff3);
+        }
+        
+        .export-btn {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+        
+        .sync-btn {
+            background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
+        }
+        
+        .add-form {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .add-form h4 {
+            margin: 0 0 20px 0;
+            color: #333;
+            font-size: 1.2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 Audio Manager</h1>
+            <p>Manage Word-Audio Pairs for Spelling Bee</p>
+        </div>
+        
+        <div class="table-container">
+            <div class="stats">
+                <h3>📊 Statistics</h3>
+                <p><strong>Total Word-Audio Pairs:</strong> <span id="totalCount">0</span></p>
+                <p><strong>Audio Files Loaded:</strong> <span id="loadedCount">0</span></p>
+                <p id="syncStatus" style="display: none; color: #4ecdc4; font-weight: 600;">🔄 Syncing with React app...</p>
+            </div>
+            
+            <div class="controls-section">
+                <h3>🎛️ Audio Management Controls</h3>
+                <div class="control-buttons">
+                    <button class="control-btn add-btn" onclick="showAddForm()">
+                        ➕ Add New Word-Audio Pair
+                    </button>
+                    <button class="control-btn restore-btn" onclick="restoreAllAudio()">
+                        🔄 Restore All Audio to Source
+                    </button>
+                    <button class="control-btn export-btn" onclick="exportData()">
+                        📤 Export Data
+                    </button>
+                    <button class="control-btn sync-btn" onclick="syncWithReactApp()">
+                        🔄 Sync with React App
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Add New Pair Form (Hidden by default) -->
+            <div id="addForm" class="add-form" style="display: none;">
+                <h4>Add New Word-Audio Pair</h4>
+                <div class="form-group">
+                    <label for="newWord">Word:</label>
+                    <input type="text" id="newWord" placeholder="Enter word (e.g., 'example')" />
+                </div>
+                <div class="form-group">
+                    <label for="newAudioFile">Audio File:</label>
+                    <input type="file" id="newAudioFile" accept="audio/*" />
+                </div>
+                <div class="form-actions">
+                    <button class="btn-primary" onclick="addNewPair()">Add Pair</button>
+                    <button class="btn-secondary" onclick="hideAddForm()">Cancel</button>
+                </div>
+            </div>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Word</th>
+                        <th>Audio File</th>
+                        <th>Controls</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="audioTable">
+                    <!-- Table rows will be populated by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Word-Audio pairs data - Synced with React app
+        let wordAudioPairs = [
+            {"word": "achievement", "audioFile": "achievement.mp3.wav"},
+            {"word": "acquire", "audioFile": "acquire.mp3.wav"},
+            {"word": "amateur", "audioFile": "amateur.mp3.wav"},
+            {"word": "ancient", "audioFile": "ancient.mp3.wav"},
+            {"word": "apparatus", "audioFile": "apparatus.mp3.wav"},
+            {"word": "appreciate", "audioFile": "appreciate.mp3.wav"},
+            {"word": "argument", "audioFile": "argument.mp3.wav"},
+            {"word": "arithmetic", "audioFile": "arithmetic.mp3.wav"},
+            {"word": "arrangement", "audioFile": "arrangement.mp3.wav"},
+            {"word": "assassinate", "audioFile": "assassinate .mp3.wav"},
+            {"word": "athlete", "audioFile": "athlete (1).mp3.wav"},
+            {"word": "authority", "audioFile": "authority.mp3.wav"},
+            {"word": "auxiliary", "audioFile": "auxiliary.mp3.wav"},
+            {"word": "beautiful", "audioFile": "beautiful.mp3.wav"},
+            {"word": "benefit", "audioFile": "benefit.mp3.wav"},
+            {"word": "biography", "audioFile": "biography.mp3.wav"},
+            {"word": "boundary", "audioFile": "boundary.mp3.wav"},
+            {"word": "calendar", "audioFile": "calendar.mp3.wav"},
+            {"word": "campaign", "audioFile": "campaign.mp3.wav"},
+            {"word": "candidate", "audioFile": "candidate.mp3.wav"},
+            {"word": "category", "audioFile": "category.mp3.wav"},
+            {"word": "cemetery", "audioFile": "cemetery.mp3.wav"},
+            {"word": "ceremony", "audioFile": "ceremony.mp3.wav"},
+            {"word": "certificate", "audioFile": "certificate.mp3.wav"},
+            {"word": "characteristic", "audioFile": "characteristic.mp3.wav"},
+            {"word": "chocolate", "audioFile": "chocolate.mp3.wav"},
+            {"word": "circumstances", "audioFile": "circumstances.mp3.wav"},
+            {"word": "colleague", "audioFile": "colleague.mp3.wav"},
+            {"word": "column", "audioFile": "column.mp3.wav"},
+            {"word": "commission", "audioFile": "commission.mp3.wav"},
+            {"word": "committee", "audioFile": "committee.mp3.wav"},
+            {"word": "comparison", "audioFile": "comparison.mp3.wav"},
+            {"word": "competition", "audioFile": "competition.mp3.wav"},
+            {"word": "completely", "audioFile": "completely.mp3.wav"},
+            {"word": "compliment", "audioFile": "compliment.mp3.wav"},
+            {"word": "concentrate", "audioFile": "concentrate.mp3.wav"},
+            {"word": "conference", "audioFile": "conference.mp3.wav"},
+            {"word": "definitely", "audioFile": "definitely.mp3.wav"},
+            {"word": "emergency", "audioFile": "emergency.mp3.wav"},
+            {"word": "exaggerate", "audioFile": "exaggerate.mp3.wav"},
+            {"word": "excitement", "audioFile": "excitement.mp3.wav"},
+            {"word": "extraordinary", "audioFile": "extraordinary.mp3.wav"},
+            {"word": "fahrenheit", "audioFile": "fahrenheit.mp3.wav"},
+            {"word": "fortunate", "audioFile": "fortunate.mp3.wav"},
+            {"word": "hierarchy", "audioFile": "hierarchy.mp3"},
+            {"word": "pronunciation", "audioFile": "pronunciation.mp3.wav"}
+        ];
+
+        let loadedCount = 0;
+        let updateInterval;
+
+        // Initialize the page
+        function init() {
+            updateStats();
+            populateTable();
+            startRealTimeUpdates();
+        }
+
+        // Start real-time updates
+        function startRealTimeUpdates() {
+            // Update every 2 seconds
+            updateInterval = setInterval(() => {
+                updateStats();
+                updateAudioStatuses();
+            }, 2000);
+        }
+
+        // Stop real-time updates
+        function stopRealTimeUpdates() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalCount').textContent = wordAudioPairs.length;
+            document.getElementById('loadedCount').textContent = loadedCount;
+            
+            // Add timestamp to show last update
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            const statsElement = document.querySelector('.stats');
+            if (statsElement && !statsElement.querySelector('.last-update')) {
+                const lastUpdate = document.createElement('p');
+                lastUpdate.className = 'last-update';
+                lastUpdate.style.fontSize = '0.8rem';
+                lastUpdate.style.color = '#999';
+                lastUpdate.style.margin = '5px 0 0 0';
+                statsElement.appendChild(lastUpdate);
+            }
+            const lastUpdateElement = statsElement.querySelector('.last-update');
+            if (lastUpdateElement) {
+                lastUpdateElement.textContent = `Last updated: ${timeString}`;
+            }
+        }
+
+        // Update audio statuses in real-time
+        function updateAudioStatuses() {
+            wordAudioPairs.forEach(pair => {
+                const audio = document.getElementById(`audio-${pair.word}`);
+                const statusEl = document.getElementById(`status-${pair.word}`);
+                
+                if (audio && statusEl) {
+                    const statusText = statusEl.querySelector('.status-text');
+                    const statusIndicator = statusEl.querySelector('.status-indicator');
+                    
+                    // Check if audio is ready
+                    if (audio.readyState >= 2) { // HAVE_CURRENT_DATA
+                        if (statusText && statusText.textContent === 'Loading...') {
+                            statusText.textContent = 'Ready';
+                            statusEl.className = 'status';
+                            statusIndicator.textContent = '●';
+                        }
+                    }
+                    
+                    // Check for errors
+                    if (audio.error) {
+                        statusText.textContent = 'Error loading audio';
+                        statusEl.className = 'status error';
+                        statusIndicator.textContent = '❌';
+                    }
+                    
+                    // Update playing status
+                    if (!audio.paused && !audio.ended) {
+                        statusText.textContent = 'Playing...';
+                        statusEl.className = 'status playing';
+                        statusIndicator.textContent = '▶️';
+                    } else if (audio.ended) {
+                        statusText.textContent = 'Completed';
+                        statusEl.className = 'status';
+                        statusIndicator.textContent = '✅';
+                    }
+                }
+            });
+        }
+
+        // Populate the table
+        function populateTable() {
+            const tbody = document.getElementById('audioTable');
+            tbody.innerHTML = '';
+
+            wordAudioPairs.forEach((pair, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td class="word-cell">${pair.word}</td>
+                    <td class="audio-cell">
+                        <span>${pair.audioFile}</span>
+                    </td>
+                    <td class="audio-controls">
+                        <audio controls id="audio-${pair.word}" preload="none">
+                            <source src="/audio/${pair.audioFile}" type="audio/mpeg">
+                            <source src="/audio/${pair.audioFile}" type="audio/wav">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <button class="change-btn" onclick="changeAudio('${pair.word}')">
+                            📁 Change
+                        </button>
+                        <input type="file" class="file-input" id="file-${pair.word}" 
+                               accept="audio/*" onchange="handleFileChange('${pair.word}', this)">
+                    </td>
+                    <td class="status" id="status-${pair.word}">
+                        <span class="status-text">Ready</span>
+                        <span class="status-indicator">●</span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Setup audio event listeners after table is populated
+            setupAudioEvents();
+        }
+
+        // Update status for audio events
+        function setupAudioEvents() {
+            wordAudioPairs.forEach(pair => {
+                const audio = document.getElementById(`audio-${pair.word}`);
+                const statusEl = document.getElementById(`status-${pair.word}`);
+                
+                if (audio && statusEl) {
+                    const statusText = statusEl.querySelector('.status-text');
+                    const statusIndicator = statusEl.querySelector('.status-indicator');
+                    
+                    audio.addEventListener('loadstart', () => {
+                        statusText.textContent = 'Loading...';
+                        statusEl.className = 'status loading';
+                        statusIndicator.textContent = '⏳';
+                    });
+                    
+                    audio.addEventListener('canplaythrough', () => {
+                        statusText.textContent = 'Ready';
+                        statusEl.className = 'status';
+                        statusIndicator.textContent = '●';
+                    });
+                    
+                    audio.addEventListener('play', () => {
+                        statusText.textContent = 'Playing...';
+                        statusEl.className = 'status playing';
+                        statusIndicator.textContent = '▶️';
+                    });
+                    
+                    audio.addEventListener('pause', () => {
+                        statusText.textContent = 'Paused';
+                        statusEl.className = 'status';
+                        statusIndicator.textContent = '⏸️';
+                    });
+                    
+                    audio.addEventListener('ended', () => {
+                        statusText.textContent = 'Completed';
+                        statusEl.className = 'status';
+                        statusIndicator.textContent = '✅';
+                    });
+                    
+                    audio.addEventListener('error', (e) => {
+                        statusText.textContent = 'Error loading audio';
+                        statusEl.className = 'status error';
+                        statusIndicator.textContent = '❌';
+                        console.error('Audio error:', e);
+                    });
+                }
+            });
+        }
+
+        // Change audio file
+        function changeAudio(word) {
+            const fileInput = document.getElementById(`file-${word}`);
+            fileInput.click();
+        }
+
+        // Handle file change
+        function handleFileChange(word, input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Validate file type
+            if (!file.type.startsWith('audio/')) {
+                alert('Please select an audio file.');
+                return;
+            }
+
+            // Update the pair data
+            const pair = wordAudioPairs.find(p => p.word === word);
+            if (pair) {
+                pair.audioFile = file.name;
+                
+                // Update the table display
+                const row = input.closest('tr');
+                const audioCell = row.querySelector('.audio-cell span');
+                audioCell.textContent = file.name;
+                
+                // Update the audio element sources
+                const audio = document.getElementById(`audio-${word}`);
+                if (audio) {
+                    // Create new source elements
+                    audio.innerHTML = `
+                        <source src="/audio/${file.name}" type="audio/mpeg">
+                        <source src="/audio/${file.name}" type="audio/wav">
+                        Your browser does not support the audio element.
+                    `;
+                    audio.load(); // Reload the audio element
+                }
+                
+                // Update status
+                const statusEl = document.getElementById(`status-${word}`);
+                statusEl.textContent = 'File changed - ready to play';
+                statusEl.className = 'status';
+                
+                // Note: In a real application, you would upload the file to the server
+                console.log(`Audio file changed for "${word}" to "${file.name}"`);
+            }
+        }
+
+        // Show add form
+        function showAddForm() {
+            document.getElementById('addForm').style.display = 'block';
+            document.getElementById('newWord').focus();
+        }
+
+        // Hide add form
+        function hideAddForm() {
+            document.getElementById('addForm').style.display = 'none';
+            document.getElementById('newWord').value = '';
+            document.getElementById('newAudioFile').value = '';
+        }
+
+        // Add new word-audio pair
+        async function addNewPair() {
+            const word = document.getElementById('newWord').value.trim();
+            const audioFile = document.getElementById('newAudioFile').files[0];
+
+            if (!word) {
+                alert('Please enter a word.');
+                return;
+            }
+
+            if (!audioFile) {
+                alert('Please select an audio file.');
+                return;
+            }
+
+            // Check if word already exists
+            if (wordAudioPairs.find(pair => pair.word.toLowerCase() === word.toLowerCase())) {
+                alert('This word already exists in the list.');
+                return;
+            }
+
+            // Validate file type
+            if (!audioFile.type.startsWith('audio/')) {
+                alert('Please select an audio file.');
+                return;
+            }
+
+            try {
+                // Show loading state
+                const addButton = document.querySelector('.btn-primary');
+                const originalText = addButton.textContent;
+                addButton.textContent = 'Adding...';
+                addButton.disabled = true;
+
+                // Add new pair to local array
+                const newPair = {
+                    word: word,
+                    audioFile: audioFile.name
+                };
+                wordAudioPairs.push(newPair);
+
+                // Save to words.txt file
+                await saveWordsToFile();
+
+                // Copy audio file to public/audio directory
+                await saveAudioFile(audioFile);
+
+                // Update the table
+                populateTable();
+                updateStats();
+
+                // Hide form and show success message
+                hideAddForm();
+                
+                // Show detailed instructions
+                const instructions = `
+✅ Successfully added "${word}" with audio file "${audioFile.name}"!
+
+📁 Files downloaded:
+• words.txt - Save this to: public/words.txt
+• ${audioFile.name} - Save this to: public/audio/${audioFile.name}
+
+🔄 After saving the files:
+1. Restart your development server (npm run dev)
+2. The new word will appear in your spelling bee game
+3. The audio will be available for the new word
+
+💡 Tip: You can also use the "Sync with React App" button to update the audio manager with any changes.
+                `;
+                
+                alert(instructions);
+
+                console.log('New pair added:', newPair);
+
+            } catch (error) {
+                console.error('Error adding new pair:', error);
+                alert('Failed to add the new word-audio pair. Please try again.');
+            } finally {
+                // Reset button state
+                const addButton = document.querySelector('.btn-primary');
+                addButton.textContent = 'Add Pair';
+                addButton.disabled = false;
+            }
+        }
+
+        // Save words to words.txt file
+        async function saveWordsToFile() {
+            const words = wordAudioPairs.map(pair => pair.word);
+            
+            // Store in localStorage as backup
+            localStorage.setItem('spellbee_words', words.join('\n'));
+            
+            // Create a downloadable file for the user to manually update
+            const wordsContent = words.join('\n') + '\n';
+            const blob = new Blob([wordsContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'words.txt';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            console.log('Words file ready for download. Please save it as public/words.txt');
+            console.log('Words to save:', words);
+        }
+
+        // Save audio file to public/audio directory
+        async function saveAudioFile(audioFile) {
+            try {
+                // Store in localStorage as backup
+                const arrayBuffer = await audioFile.arrayBuffer();
+                const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+                localStorage.setItem(`audio_${audioFile.name}`, base64);
+                
+                // Create a downloadable file for the user to manually save
+                const blob = new Blob([arrayBuffer], { type: audioFile.type });
+                const url = URL.createObjectURL(blob);
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = audioFile.name;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                console.log('Audio file ready for download. Please save it as public/audio/' + audioFile.name);
+                console.log('Audio file saved to localStorage:', audioFile.name);
+            } catch (error) {
+                console.error('Error saving audio file:', error);
+                throw error;
+            }
+        }
+
+        // Restore all audio files to their original source
+        function restoreAllAudio() {
+            if (confirm('Are you sure you want to restore all audio files to their original source? This will reset any changes made to individual audio files.')) {
+                // Reset all audio files to their original names
+                wordAudioPairs.forEach(pair => {
+                    // Find the original audio file name from the original data
+                    const originalPair = originalWordAudioPairs.find(orig => orig.word === pair.word);
+                    if (originalPair) {
+                        pair.audioFile = originalPair.audioFile;
+                    }
+                });
+
+                // Update the table
+                populateTable();
+                updateStats();
+
+                alert('All audio files have been restored to their original source!');
+                console.log('Audio files restored to original source');
+            }
+        }
+
+        // Export data as JSON
+        function exportData() {
+            const dataStr = JSON.stringify(wordAudioPairs, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'word-audio-pairs.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            alert('Data exported successfully!');
+        }
+
+        // Sync with React app's word list
+        async function syncWithReactApp() {
+            const syncStatus = document.getElementById('syncStatus');
+            syncStatus.style.display = 'block';
+            
+            try {
+                // Fetch the current word list from the React app
+                const response = await fetch('/words.txt');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch word list');
+                }
+                
+                const wordListText = await response.text();
+                const currentWords = wordListText.split('\n').map(w => w.trim()).filter(w => w.length > 0);
+                
+                // Create new word-audio pairs based on current words
+                const newWordAudioPairs = [];
+                const existingAudioFiles = wordAudioPairs.map(pair => pair.audioFile);
+                
+                currentWords.forEach(word => {
+                    // Check if we already have an audio file for this word
+                    const existingPair = wordAudioPairs.find(pair => pair.word.toLowerCase() === word.toLowerCase());
+                    
+                    if (existingPair) {
+                        // Keep existing audio file
+                        newWordAudioPairs.push(existingPair);
+                    } else {
+                        // Create new pair with default audio file name
+                        const audioFileName = `${word.toLowerCase()}.mp3.wav`;
+                        newWordAudioPairs.push({
+                            word: word,
+                            audioFile: audioFileName
+                        });
+                    }
+                });
+                
+                // Update the word-audio pairs
+                wordAudioPairs = newWordAudioPairs;
+                
+                // Update the table and stats
+                populateTable();
+                updateStats();
+                
+                syncStatus.style.display = 'none';
+                alert(`Successfully synced with React app! Found ${currentWords.length} words.`);
+                console.log('Synced with React app:', newWordAudioPairs);
+                
+            } catch (error) {
+                console.error('Error syncing with React app:', error);
+                syncStatus.style.display = 'none';
+                alert('Failed to sync with React app. Please check if the app is running.');
+            }
+        }
+
+        // Auto-sync on page load
+        async function autoSyncOnLoad() {
+            try {
+                // First, try to load from localStorage (user's added words)
+                const savedWords = localStorage.getItem('spellbee_words');
+                if (savedWords) {
+                    const savedWordsList = savedWords.split('\n').filter(w => w.trim().length > 0);
+                    if (savedWordsList.length > 0) {
+                        console.log('Loading saved words from localStorage:', savedWordsList.length);
+                        // Update wordAudioPairs with saved words
+                        wordAudioPairs = savedWordsList.map(word => {
+                            const existingPair = wordAudioPairs.find(pair => pair.word.toLowerCase() === word.toLowerCase());
+                            return existingPair || { word: word, audioFile: `${word.toLowerCase()}.mp3.wav` };
+                        });
+                        populateTable();
+                        updateStats();
+                    }
+                }
+                
+                // Then try to sync with the actual words.txt file
+                const response = await fetch('/words.txt');
+                if (response.ok) {
+                    const wordListText = await response.text();
+                    const currentWords = wordListText.split('\n').map(w => w.trim()).filter(w => w.length > 0);
+                    
+                    // Only sync if the word count is different and we don't have saved words
+                    if (currentWords.length !== wordAudioPairs.length && !savedWords) {
+                        console.log('Auto-syncing with React app...');
+                        await syncWithReactApp();
+                    }
+                }
+            } catch (error) {
+                console.log('Auto-sync failed, using default word list');
+            }
+        }
+
+        // Store original data for restoration
+        const originalWordAudioPairs = JSON.parse(JSON.stringify(wordAudioPairs));
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            autoSyncOnLoad();
+        });
+    </script>
+</body>
+</html>
