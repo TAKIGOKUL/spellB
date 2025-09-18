@@ -166,3 +166,143 @@ body {
   white-space: nowrap;
   border-width: 0;
 }
+
+/* Input Display Styles */
+.input-display {
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.spell-display {
+  min-height: 50px;
+  padding: 12px 20px;
+  background: var(--glass-bg);
+  border: 2px solid var(--glass-border);
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--honey-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200px;
+  max-width: 100%;
+  word-spacing: 4px;
+  letter-spacing: 2px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--glass-shadow);
+}
+
+.spell-display:empty::before {
+  content: 'Type your spelling here...';
+  color: var(--honey-4);
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+/* Virtual Keyboard Styles */
+.virtual-keyboard {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.keyboard-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 100%;
+  padding: 16px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.keyboard-controls {
+  margin-top: 8px;
+  justify-content: center;
+}
+
+.keyboard-key {
+  min-width: 40px;
+  height: 40px;
+  border: none;
+  background: #FFB300;
+  color: #8B4513;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(139, 69, 19, 0.3);
+  user-select: none;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  position: relative;
+}
+
+.keyboard-key:hover:not(.disabled) {
+  background: #FFC107;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.4);
+}
+
+.keyboard-key:active:not(.disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(139, 69, 19, 0.3);
+}
+
+.keyboard-key.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #FFB300;
+}
+
+.keyboard-key-wide {
+  min-width: 80px;
+}
+
+.keyboard-key-enter {
+  background: #8B4513;
+  color: #FFB300;
+  font-weight: 700;
+}
+
+.keyboard-key-enter:hover:not(.disabled) {
+  background: #A0522D;
+}
+
+@media (max-width: 480px) {
+  .keyboard-key {
+    min-width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .keyboard-key-wide {
+    min-width: 70px;
+  }
+  
+  .keyboard-container {
+    padding: 12px;
+    gap: 6px;
+  }
+  
+  .keyboard-row {
+    gap: 4px;
+  }
+}

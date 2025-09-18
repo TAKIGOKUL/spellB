@@ -3,12 +3,13 @@ import './App.css'
 import './NeumorphicTheme.css' // Import the neumorphic theme
 import cn from 'classnames'
 import BeeImage from './BeeImage'
+import VirtualKeyboard from './VirtualKeyboard'
 
 type WordItem = { word: string }
 
-const MAX_REPLAYS = 5
+const MAX_REPLAYS = 3
 const ROUNDS_TOTAL = 5
-const WORDS_PER_ROUND = 5
+const WORDS_PER_ROUND = 1
 const POINTS_PER_WORD = 2
 
 
@@ -47,62 +48,6 @@ function HexLetters({ value, length, complete }: { value: string; length: number
 }
 
 function StartScreen({ onStart }: { onStart: () => void }) {
-  const [ttsReady, setTtsReady] = useState(false)
-  const [testing, setTesting] = useState(false)
-  
-  const testTTS = () => {
-    if (!('speechSynthesis' in window)) {
-      alert('TTS not supported in this browser. Try Chrome or Edge.')
-      return
-    }
-    
-    setTesting(true)
-    console.log('🧪 Testing TTS...')
-    
-    try {
-      speechSynthesis.cancel()
-      
-      const utterance = new SpeechSynthesisUtterance('Test')
-      utterance.rate = 0.8
-      utterance.volume = 1.0
-      utterance.lang = 'en-US'
-      
-      utterance.onstart = () => {
-        console.log('✅ TTS test successful')
-        setTtsReady(true)
-        setTesting(false)
-      }
-      
-      utterance.onend = () => {
-        console.log('✅ TTS test completed')
-        setTtsReady(true)
-        setTesting(false)
-      }
-      
-      utterance.onerror = (e) => {
-        console.error('❌ TTS test failed:', e)
-        setTesting(false)
-        alert('TTS test failed. Please check your browser settings.')
-      }
-      
-      speechSynthesis.speak(utterance)
-      
-      // Timeout fallback
-      setTimeout(() => {
-        if (testing) {
-          console.log('⚠️ TTS test timeout')
-          setTesting(false)
-          alert('TTS test timed out. Please check your browser settings.')
-        }
-      }, 3000)
-      
-    } catch (err) {
-      console.error('❌ TTS test error:', err)
-      setTesting(false)
-      alert('TTS test failed: ' + err)
-    }
-  }
-  
   const handleStart = () => {
     onStart()
   }
@@ -119,25 +64,11 @@ function StartScreen({ onStart }: { onStart: () => void }) {
       
       <div className="start-buttons">
         <button 
-          className="btn" 
-          onClick={testTTS}
-          disabled={testing}
-        >
-          {testing ? '🔄 Testing...' : ttsReady ? '✅ Audio Works' : '🔊 Test Audio'}
-        </button>
-        
-        <button 
           className="btn primary" 
           onClick={handleStart}
         >
           Begin Game
         </button>
-        
-        {!ttsReady && (
-          <p style={{ fontSize: '14px', opacity: 0.7, margin: 0, textAlign: 'center' }}>
-            Click "Test Audio" to verify speech works
-          </p>
-        )}
       </div>
     </div>
   )
@@ -180,8 +111,8 @@ function EndScreen({ score, onReplay }: { score: number; onReplay: () => void })
         </div>
       </div>
       
-      <button className="btn primary" onClick={onReplay}>
-        Play Again
+      <button className="btn primary" onClick={() => window.open('https://yessplora.netlify.app/', '_blank')}>
+        Continue to YesSplora
       </button>
     </div>
   )
@@ -379,8 +310,8 @@ function App() {
     }
   }
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const onSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
     if (!word) return
     const isCorrect = input.trim().toLowerCase() === word.word.toLowerCase()
     setCorrect(isCorrect)
@@ -394,20 +325,38 @@ function App() {
       setInput('')
       setIndex((i) => {
         const newIndex = i + 1
-        // Update round immediately based on new index
-        const newRound = Math.floor(newIndex / WORDS_PER_ROUND) + 1
+        // Update round immediately after each submission (since WORDS_PER_ROUND = 1)
+        const newRound = newIndex + 1
         if (newRound <= ROUNDS_TOTAL) {
           setRound(newRound)
         }
         return newIndex
       })
       setCorrect(null)
-      resetPlays() // Reset audio plays for next word
+      setPlays(0) // Reset audio plays for next word
     }, 1500) // Show result for 1.5 seconds
   }
 
+  const handleKeyPress = (key: string) => {
+    if (correct !== null || paused) return
+    if (input.length < length) {
+      setInput(prev => prev + key)
+    }
+  }
+
+  const handleBackspace = () => {
+    if (correct !== null || paused) return
+    setInput(prev => prev.slice(0, -1))
+  }
+
+  const handleEnter = () => {
+    if (correct !== null || paused || !input.trim()) return
+    onSubmit()
+  }
+
   useEffect(() => {
-    const currentRound = Math.floor(index / WORDS_PER_ROUND) + 1;
+    // Since WORDS_PER_ROUND = 1, round is simply index + 1
+    const currentRound = index + 1;
     if (currentRound !== round && currentRound <= ROUNDS_TOTAL) {
       setRound(currentRound);
     }
@@ -436,7 +385,7 @@ function App() {
   }, [started, paused, gameComplete]);
 
   if (!started) return <div className="app-container"><StartScreen onStart={() => setStarted(true)} /></div>
-  if (gameComplete) return <div className="app-container"><EndScreen score={score} onReplay={() => { setStarted(false); setPaused(false); setRound(1); setScore(0); setInput(''); setIndex(0) }} /></div>
+  if (gameComplete) return <div className="app-container"><EndScreen score={score} onReplay={() => {}} /></div>
   if (wordsLoading) return <div className="app-container"><div className="game-card">Loading words...</div></div>
 
   const length = word?.word.length ?? 0
@@ -483,20 +432,18 @@ function App() {
           </div>
         </div>
 
-         <form onSubmit={onSubmit} className="input-form">
-           <input
-             type="text"
-             className="spell-input"
-             placeholder="Type your spelling here..."
-             value={input}
-             maxLength={length > 0 ? length : undefined}
-             onChange={(e) => setInput(e.target.value)}
-             disabled={correct !== null || paused}
-           />
-           <button className="submit-button" type="submit" disabled={correct !== null || !input.trim() || paused}>
-             Submit
-           </button>
-         </form>
+         <div className="input-display">
+           <div className="spell-display">
+             {input || 'Type your spelling here...'}
+           </div>
+         </div>
+         
+         <VirtualKeyboard
+           onKeyPress={handleKeyPress}
+           onBackspace={handleBackspace}
+           onEnter={handleEnter}
+           disabled={correct !== null || paused}
+         />
          
          {correct !== null && (
            <div className={cn('result-display', {
