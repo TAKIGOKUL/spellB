@@ -52,3 +52,4 @@ export const BeeImage: React.FC<BeeImageProps> = ({ size = 80, className = '' })
 }
 
 export default BeeImage
+
