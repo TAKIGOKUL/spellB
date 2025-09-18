@@ -285,6 +285,63 @@
         .btn-secondary:hover {
             background: #e0e0e0;
         }
+        
+        .word-number {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .round-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+        
+        /* Round-specific row styling */
+        .round-1 tr {
+            border-left: 3px solid #4ecdc4;
+        }
+        
+        .round-2 tr {
+            border-left: 3px solid #45b7d1;
+        }
+        
+        .round-3 tr {
+            border-left: 3px solid #f9ca24;
+        }
+        
+        .round-4 tr {
+            border-left: 3px solid #f0932b;
+        }
+        
+        .round-5 tr {
+            border-left: 3px solid #eb4d4b;
+        }
+        
+        /* Round badge colors */
+        .round-1 .round-badge {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+        
+        .round-2 .round-badge {
+            background: linear-gradient(135deg, #45b7d1, #96c93d);
+        }
+        
+        .round-3 .round-badge {
+            background: linear-gradient(135deg, #f9ca24, #f0932b);
+        }
+        
+        .round-4 .round-badge {
+            background: linear-gradient(135deg, #f0932b, #eb4d4b);
+        }
+        
+        .round-5 .round-badge {
+            background: linear-gradient(135deg, #eb4d4b, #6c5ce7);
+        }
     </style>
 </head>
 <body>
@@ -299,6 +356,8 @@
                 <h3>📊 Statistics</h3>
                 <p><strong>Total Word-Audio Pairs:</strong> <span id="totalCount">0</span></p>
                 <p><strong>Audio Files Loaded:</strong> <span id="loadedCount">0</span></p>
+                <p><strong>Current Round:</strong> <span id="currentRound">1 / 5</span></p>
+                <p><strong>Words in Current Round:</strong> <span id="wordsInRound">1-5</span></p>
                 <p id="syncStatus" style="display: none; color: #4ecdc4; font-weight: 600;">🔄 Syncing with React app...</p>
             </div>
             
@@ -407,6 +466,10 @@
 
         let loadedCount = 0;
         let updateInterval;
+        
+        // Game constants (matching React app)
+        const ROUNDS_TOTAL = 5;
+        const WORDS_PER_ROUND = 5;
 
         // Initialize the page
         function init() {
@@ -436,6 +499,9 @@
             document.getElementById('totalCount').textContent = wordAudioPairs.length;
             document.getElementById('loadedCount').textContent = loadedCount;
             
+            // Update round information
+            updateRoundInfo();
+            
             // Add timestamp to show last update
             const now = new Date();
             const timeString = now.toLocaleTimeString();
@@ -452,6 +518,20 @@
             if (lastUpdateElement) {
                 lastUpdateElement.textContent = `Last updated: ${timeString}`;
             }
+        }
+
+        // Update round information
+        function updateRoundInfo() {
+            const totalWords = wordAudioPairs.length;
+            const currentRound = Math.min(Math.ceil(totalWords / WORDS_PER_ROUND), ROUNDS_TOTAL);
+            const wordsInCurrentRound = Math.min(totalWords, WORDS_PER_ROUND);
+            
+            // Calculate word range for current round
+            const startWord = ((currentRound - 1) * WORDS_PER_ROUND) + 1;
+            const endWord = Math.min(currentRound * WORDS_PER_ROUND, totalWords);
+            
+            document.getElementById('currentRound').textContent = `${currentRound} / ${ROUNDS_TOTAL}`;
+            document.getElementById('wordsInRound').textContent = `${startWord}-${endWord}`;
         }
 
         // Update audio statuses in real-time
@@ -501,8 +581,15 @@
 
             wordAudioPairs.forEach((pair, index) => {
                 const row = document.createElement('tr');
+                const wordNumber = index + 1;
+                const roundNumber = Math.ceil(wordNumber / WORDS_PER_ROUND);
+                const roundClass = `round-${roundNumber}`;
+                
                 row.innerHTML = `
-                    <td>${index + 1}</td>
+                    <td>
+                        <span class="word-number">${wordNumber}</span>
+                        <span class="round-badge">R${roundNumber}</span>
+                    </td>
                     <td class="word-cell">${pair.word}</td>
                     <td class="audio-cell">
                         <span>${pair.audioFile}</span>
@@ -524,6 +611,9 @@
                         <span class="status-indicator">●</span>
                     </td>
                 `;
+                
+                // Add round class for styling
+                row.className = roundClass;
                 tbody.appendChild(row);
             });
             
