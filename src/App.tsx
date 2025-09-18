@@ -392,16 +392,17 @@ function App() {
     // Always move to next word after submit (correct or incorrect)
     setTimeout(() => {
       setInput('')
-      setIndex((i) => i + 1)
+      setIndex((i) => {
+        const newIndex = i + 1
+        // Update round immediately based on new index
+        const newRound = Math.floor(newIndex / WORDS_PER_ROUND) + 1
+        if (newRound <= ROUNDS_TOTAL) {
+          setRound(newRound)
+        }
+        return newIndex
+      })
       setCorrect(null)
       resetPlays() // Reset audio plays for next word
-      
-      // Update round immediately based on new index
-      const newIndex = index + 1
-      const newRound = Math.floor(newIndex / WORDS_PER_ROUND) + 1
-      if (newRound <= ROUNDS_TOTAL) {
-        setRound(newRound)
-      }
     }, 1500) // Show result for 1.5 seconds
   }
 
