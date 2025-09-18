@@ -74,7 +74,7 @@ function StartScreen({ onStart }: { onStart: () => void }) {
   )
 }
 
-function EndScreen({ score, onReplay }: { score: number; onReplay: () => void }) {
+function EndScreen({ score }: { score: number; onReplay: () => void }) {
   const maxScore = ROUNDS_TOTAL * WORDS_PER_ROUND * POINTS_PER_WORD
   const percentage = Math.round((score / maxScore) * 100)
   
