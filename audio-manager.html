@@ -285,63 +285,6 @@
         .btn-secondary:hover {
             background: #e0e0e0;
         }
-        
-        .word-number {
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .round-badge {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 10px;
-            margin-left: 8px;
-            font-weight: 600;
-        }
-        
-        /* Round-specific row styling */
-        .round-1 tr {
-            border-left: 3px solid #4ecdc4;
-        }
-        
-        .round-2 tr {
-            border-left: 3px solid #45b7d1;
-        }
-        
-        .round-3 tr {
-            border-left: 3px solid #f9ca24;
-        }
-        
-        .round-4 tr {
-            border-left: 3px solid #f0932b;
-        }
-        
-        .round-5 tr {
-            border-left: 3px solid #eb4d4b;
-        }
-        
-        /* Round badge colors */
-        .round-1 .round-badge {
-            background: linear-gradient(135deg, #4ecdc4, #44a08d);
-        }
-        
-        .round-2 .round-badge {
-            background: linear-gradient(135deg, #45b7d1, #96c93d);
-        }
-        
-        .round-3 .round-badge {
-            background: linear-gradient(135deg, #f9ca24, #f0932b);
-        }
-        
-        .round-4 .round-badge {
-            background: linear-gradient(135deg, #f0932b, #eb4d4b);
-        }
-        
-        .round-5 .round-badge {
-            background: linear-gradient(135deg, #eb4d4b, #6c5ce7);
-        }
     </style>
 </head>
 <body>
@@ -356,8 +299,6 @@
                 <h3>📊 Statistics</h3>
                 <p><strong>Total Word-Audio Pairs:</strong> <span id="totalCount">0</span></p>
                 <p><strong>Audio Files Loaded:</strong> <span id="loadedCount">0</span></p>
-                <p><strong>Current Round:</strong> <span id="currentRound">1 / 5</span></p>
-                <p><strong>Words in Current Round:</strong> <span id="wordsInRound">1-5</span></p>
                 <p id="syncStatus" style="display: none; color: #4ecdc4; font-weight: 600;">🔄 Syncing with React app...</p>
             </div>
             
@@ -466,10 +407,6 @@
 
         let loadedCount = 0;
         let updateInterval;
-        
-        // Game constants (matching React app)
-        const ROUNDS_TOTAL = 5;
-        const WORDS_PER_ROUND = 5;
 
         // Initialize the page
         function init() {
@@ -499,9 +436,6 @@
             document.getElementById('totalCount').textContent = wordAudioPairs.length;
             document.getElementById('loadedCount').textContent = loadedCount;
             
-            // Update round information
-            updateRoundInfo();
-            
             // Add timestamp to show last update
             const now = new Date();
             const timeString = now.toLocaleTimeString();
@@ -518,20 +452,6 @@
             if (lastUpdateElement) {
                 lastUpdateElement.textContent = `Last updated: ${timeString}`;
             }
-        }
-
-        // Update round information
-        function updateRoundInfo() {
-            const totalWords = wordAudioPairs.length;
-            const currentRound = Math.min(Math.ceil(totalWords / WORDS_PER_ROUND), ROUNDS_TOTAL);
-            const wordsInCurrentRound = Math.min(totalWords, WORDS_PER_ROUND);
-            
-            // Calculate word range for current round
-            const startWord = ((currentRound - 1) * WORDS_PER_ROUND) + 1;
-            const endWord = Math.min(currentRound * WORDS_PER_ROUND, totalWords);
-            
-            document.getElementById('currentRound').textContent = `${currentRound} / ${ROUNDS_TOTAL}`;
-            document.getElementById('wordsInRound').textContent = `${startWord}-${endWord}`;
         }
 
         // Update audio statuses in real-time
@@ -581,15 +501,8 @@
 
             wordAudioPairs.forEach((pair, index) => {
                 const row = document.createElement('tr');
-                const wordNumber = index + 1;
-                const roundNumber = Math.ceil(wordNumber / WORDS_PER_ROUND);
-                const roundClass = `round-${roundNumber}`;
-                
                 row.innerHTML = `
-                    <td>
-                        <span class="word-number">${wordNumber}</span>
-                        <span class="round-badge">R${roundNumber}</span>
-                    </td>
+                    <td>${index + 1}</td>
                     <td class="word-cell">${pair.word}</td>
                     <td class="audio-cell">
                         <span>${pair.audioFile}</span>
@@ -611,9 +524,6 @@
                         <span class="status-indicator">●</span>
                     </td>
                 `;
-                
-                // Add round class for styling
-                row.className = roundClass;
                 tbody.appendChild(row);
             });
             
@@ -734,7 +644,7 @@
         }
 
         // Add new word-audio pair
-        function addNewPair() {
+        async function addNewPair() {
             const word = document.getElementById('newWord').value.trim();
             const audioFile = document.getElementById('newAudioFile').files[0];
 
@@ -760,23 +670,118 @@
                 return;
             }
 
-            // Add new pair
-            const newPair = {
-                word: word,
-                audioFile: audioFile.name
-            };
-            wordAudioPairs.push(newPair);
+            try {
+                // Show loading state
+                const addButton = document.querySelector('.btn-primary');
+                const originalText = addButton.textContent;
+                addButton.textContent = 'Adding...';
+                addButton.disabled = true;
 
-            // Update the table
-            populateTable();
-            updateStats();
+                // Add new pair to local array
+                const newPair = {
+                    word: word,
+                    audioFile: audioFile.name
+                };
+                wordAudioPairs.push(newPair);
 
-            // Hide form and show success message
-            hideAddForm();
-            alert(`Successfully added "${word}" with audio file "${audioFile.name}"`);
+                // Save to words.txt file
+                await saveWordsToFile();
 
-            // Note: In a real application, you would upload the file to the server
-            console.log('New pair added:', newPair);
+                // Copy audio file to public/audio directory
+                await saveAudioFile(audioFile);
+
+                // Update the table
+                populateTable();
+                updateStats();
+
+                // Hide form and show success message
+                hideAddForm();
+                
+                // Show detailed instructions
+                const instructions = `
+✅ Successfully added "${word}" with audio file "${audioFile.name}"!
+
+📁 Files downloaded:
+• words.txt - Save this to: public/words.txt
+• ${audioFile.name} - Save this to: public/audio/${audioFile.name}
+
+🔄 After saving the files:
+1. Restart your development server (npm run dev)
+2. The new word will appear in your spelling bee game
+3. The audio will be available for the new word
+
+💡 Tip: You can also use the "Sync with React App" button to update the audio manager with any changes.
+                `;
+                
+                alert(instructions);
+
+                console.log('New pair added:', newPair);
+
+            } catch (error) {
+                console.error('Error adding new pair:', error);
+                alert('Failed to add the new word-audio pair. Please try again.');
+            } finally {
+                // Reset button state
+                const addButton = document.querySelector('.btn-primary');
+                addButton.textContent = 'Add Pair';
+                addButton.disabled = false;
+            }
+        }
+
+        // Save words to words.txt file
+        async function saveWordsToFile() {
+            const words = wordAudioPairs.map(pair => pair.word);
+            
+            // Store in localStorage as backup
+            localStorage.setItem('spellbee_words', words.join('\n'));
+            
+            // Create a downloadable file for the user to manually update
+            const wordsContent = words.join('\n') + '\n';
+            const blob = new Blob([wordsContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create download link
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'words.txt';
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            console.log('Words file ready for download. Please save it as public/words.txt');
+            console.log('Words to save:', words);
+        }
+
+        // Save audio file to public/audio directory
+        async function saveAudioFile(audioFile) {
+            try {
+                // Store in localStorage as backup
+                const arrayBuffer = await audioFile.arrayBuffer();
+                const base64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+                localStorage.setItem(`audio_${audioFile.name}`, base64);
+                
+                // Create a downloadable file for the user to manually save
+                const blob = new Blob([arrayBuffer], { type: audioFile.type });
+                const url = URL.createObjectURL(blob);
+                
+                // Create download link
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = audioFile.name;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                console.log('Audio file ready for download. Please save it as public/audio/' + audioFile.name);
+                console.log('Audio file saved to localStorage:', audioFile.name);
+            } catch (error) {
+                console.error('Error saving audio file:', error);
+                throw error;
+            }
         }
 
         // Restore all audio files to their original source
@@ -874,13 +879,30 @@
         // Auto-sync on page load
         async function autoSyncOnLoad() {
             try {
+                // First, try to load from localStorage (user's added words)
+                const savedWords = localStorage.getItem('spellbee_words');
+                if (savedWords) {
+                    const savedWordsList = savedWords.split('\n').filter(w => w.trim().length > 0);
+                    if (savedWordsList.length > 0) {
+                        console.log('Loading saved words from localStorage:', savedWordsList.length);
+                        // Update wordAudioPairs with saved words
+                        wordAudioPairs = savedWordsList.map(word => {
+                            const existingPair = wordAudioPairs.find(pair => pair.word.toLowerCase() === word.toLowerCase());
+                            return existingPair || { word: word, audioFile: `${word.toLowerCase()}.mp3.wav` };
+                        });
+                        populateTable();
+                        updateStats();
+                    }
+                }
+                
+                // Then try to sync with the actual words.txt file
                 const response = await fetch('/words.txt');
                 if (response.ok) {
                     const wordListText = await response.text();
                     const currentWords = wordListText.split('\n').map(w => w.trim()).filter(w => w.length > 0);
                     
-                    // Only sync if the word count is different
-                    if (currentWords.length !== wordAudioPairs.length) {
+                    // Only sync if the word count is different and we don't have saved words
+                    if (currentWords.length !== wordAudioPairs.length && !savedWords) {
                         console.log('Auto-syncing with React app...');
                         await syncWithReactApp();
                     }
