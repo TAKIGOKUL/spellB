@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import './NeumorphicTheme.css' // Import the neumorphic theme
 import cn from 'classnames'
@@ -325,7 +325,7 @@ function App() {
   }, [allWords])
 
   const word: WordItem | undefined = gameWords[index]
-  const { play, plays, loading, error } = useTTSPlayer(word?.word)
+  const { play, plays, loading } = useTTSPlayer(word?.word)
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault()
