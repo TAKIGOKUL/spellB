@@ -205,6 +205,10 @@
             background: linear-gradient(135deg, #ff6b6b, #ee5a24);
         }
         
+        .sync-btn {
+            background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
+        }
+        
         .add-form {
             background: white;
             padding: 25px;
@@ -295,6 +299,7 @@
                 <h3>📊 Statistics</h3>
                 <p><strong>Total Word-Audio Pairs:</strong> <span id="totalCount">0</span></p>
                 <p><strong>Audio Files Loaded:</strong> <span id="loadedCount">0</span></p>
+                <p id="syncStatus" style="display: none; color: #4ecdc4; font-weight: 600;">🔄 Syncing with React app...</p>
             </div>
             
             <div class="controls-section">
@@ -308,6 +313,9 @@
                     </button>
                     <button class="control-btn export-btn" onclick="exportData()">
                         📤 Export Data
+                    </button>
+                    <button class="control-btn sync-btn" onclick="syncWithReactApp()">
+                        🔄 Sync with React App
                     </button>
                 </div>
             </div>
@@ -347,8 +355,8 @@
     </div>
 
     <script>
-        // Word-Audio pairs data - Correctly mapped
-        const wordAudioPairs = [
+        // Word-Audio pairs data - Synced with React app
+        let wordAudioPairs = [
             {"word": "achievement", "audioFile": "achievement.mp3.wav"},
             {"word": "acquire", "audioFile": "acquire.mp3.wav"},
             {"word": "amateur", "audioFile": "amateur.mp3.wav"},
@@ -719,11 +727,87 @@
             alert('Data exported successfully!');
         }
 
+        // Sync with React app's word list
+        async function syncWithReactApp() {
+            const syncStatus = document.getElementById('syncStatus');
+            syncStatus.style.display = 'block';
+            
+            try {
+                // Fetch the current word list from the React app
+                const response = await fetch('/words.txt');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch word list');
+                }
+                
+                const wordListText = await response.text();
+                const currentWords = wordListText.split('\n').map(w => w.trim()).filter(w => w.length > 0);
+                
+                // Create new word-audio pairs based on current words
+                const newWordAudioPairs = [];
+                const existingAudioFiles = wordAudioPairs.map(pair => pair.audioFile);
+                
+                currentWords.forEach(word => {
+                    // Check if we already have an audio file for this word
+                    const existingPair = wordAudioPairs.find(pair => pair.word.toLowerCase() === word.toLowerCase());
+                    
+                    if (existingPair) {
+                        // Keep existing audio file
+                        newWordAudioPairs.push(existingPair);
+                    } else {
+                        // Create new pair with default audio file name
+                        const audioFileName = `${word.toLowerCase()}.mp3.wav`;
+                        newWordAudioPairs.push({
+                            word: word,
+                            audioFile: audioFileName
+                        });
+                    }
+                });
+                
+                // Update the word-audio pairs
+                wordAudioPairs = newWordAudioPairs;
+                
+                // Update the table and stats
+                populateTable();
+                updateStats();
+                
+                syncStatus.style.display = 'none';
+                alert(`Successfully synced with React app! Found ${currentWords.length} words.`);
+                console.log('Synced with React app:', newWordAudioPairs);
+                
+            } catch (error) {
+                console.error('Error syncing with React app:', error);
+                syncStatus.style.display = 'none';
+                alert('Failed to sync with React app. Please check if the app is running.');
+            }
+        }
+
+        // Auto-sync on page load
+        async function autoSyncOnLoad() {
+            try {
+                const response = await fetch('/words.txt');
+                if (response.ok) {
+                    const wordListText = await response.text();
+                    const currentWords = wordListText.split('\n').map(w => w.trim()).filter(w => w.length > 0);
+                    
+                    // Only sync if the word count is different
+                    if (currentWords.length !== wordAudioPairs.length) {
+                        console.log('Auto-syncing with React app...');
+                        await syncWithReactApp();
+                    }
+                }
+            } catch (error) {
+                console.log('Auto-sync failed, using default word list');
+            }
+        }
+
         // Store original data for restoration
         const originalWordAudioPairs = JSON.parse(JSON.stringify(wordAudioPairs));
 
         // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+            autoSyncOnLoad();
+        });
     </script>
 </body>
 </html>
